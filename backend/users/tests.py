@@ -50,6 +50,53 @@ class RegisterViewTest(APITestCase):
         self.assertIn("email", response.data)
         self.assertIn("password", response.data)
 
+from .models import EmailVerificationToken
+
+class VerifyEmailViewTest(APITestCase):
+    # python3 manage.py test users.tests.VerifyEmailViewTest
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            email="testuser@example.com",
+            password="strongpassword123"
+        )
+        self.verify_url = reverse('verify_email')  # URL for verifying email
+        self.token = EmailVerificationToken.objects.create(
+            user=self.user,
+            token="testtoken"
+        )
+
+    def test_verify_email_success(self):
+        # python3 manage.py test users.tests.VerifyEmailViewTest.test_verify_email_success
+        url = f"{self.verify_url}?token={self.token.token}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "Email successfully verified")
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_verified)
+        self.assertFalse(EmailVerificationToken.objects.filter(token=self.token.token).exists())
+
+    def test_verify_email_invalid_token(self):
+        # python3 manage.py test users.tests.VerifyEmailViewTest.test_verify_email_invalid_token
+        url = f"{self.verify_url}?token=invalidtoken"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "Invalid or expired token")
+
+    def test_verify_email_missing_token(self):
+        response = self.client.get(self.verify_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "Token is required")
+
+    def test_verify_email_already_verified(self):
+        self.user.is_verified = True
+        self.user.save()
+        url = f"{self.verify_url}?token={self.token.token}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["message"], "Email already verified")
+        
+
+
 class LoginViewTest(APITestCase):
     def setUp(self):
         # Create a test user
