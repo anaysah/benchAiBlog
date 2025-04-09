@@ -15,12 +15,13 @@ class RegisterView(APIView):
                 return Response({
                     "id": user.id,
                     "email": user.email,
+                    "username": user.username,
                     "message": "User registered successfully"
                 }, status=status.HTTP_201_CREATED)
             except Exception as e:
+                print(f"Error during registration: {e}")
                 return Response(
                     {"error": "An unexpected error occurred."},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
