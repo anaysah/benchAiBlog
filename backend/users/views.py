@@ -5,23 +5,11 @@ from rest_framework.permissions import AllowAny
 from .serializers import RegisterSerializer
 
 class RegisterView(APIView):
-    permission_classes = [AllowAny]  # Explicitly allow unauthenticated access
-
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            try:
-                user = serializer.save()
-                return Response({
-                    "id": user.id,
-                    "email": user.email,
-                    "username": user.username,
-                    "message": "User registered successfully"
-                }, status=status.HTTP_201_CREATED)
-            except Exception as e:
-                print(f"Error during registration: {e}")
-                return Response(
-                    {"error": "An unexpected error occurred."},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+            serializer.save()
+            print(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
