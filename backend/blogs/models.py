@@ -145,3 +145,54 @@ class Post(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['slug'], name='unique_post_slug')
         ]
+
+class Comment(models.Model):
+    """A model representing a comment on a blog post, supporting nested replies."""
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
+    content = models.TextField(
+        validators=[MinLengthValidator(10, "Comment must be at least 10 characters long.")],
+        blank=False
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_approved = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        """Sanitize comment content before saving."""
+        if self.content:
+            self.content = bleach.clean(
+                self.content,
+                tags=['p', 'b', 'i', 'a'],
+                attributes={'a': ['href']}
+            )
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f"Comment by {self.author} on {self.post}"
+
+    class Meta:
+        verbose_name = "Comment"
+        verbose_name_plural = "Comments"
+        ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['post']),
+            models.Index(fields=['parent']),
+            models.Index(fields=['created_at']),
+        ]
