@@ -10,7 +10,11 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 import bleach
 from django.utils.text import slugify
+import string
+import random
 
+def random_suffix(length=6):
+    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
 
 def validate_image_extension(value):
     """Ensure uploaded images have valid extensions."""
@@ -39,7 +43,8 @@ def validate_svg_content(value):
 
 # Create your models here.
 class Category(models.Model):
-    name = models.SlugField(max_length=50, unique=True, blank=True)
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True)
     icon_svg = models.TextField(
         validators=[validate_svg_content],
         help_text="Enter valid SVG code (e.g., <svg>...</svg>).",
@@ -93,21 +98,21 @@ class Post(models.Model):
         null=True,
         related_name='posts'
     )
-    tthumbnail = models.ImageField(
+    thumbnail = models.ImageField(
         upload_to=get_image_filename,
         blank=True,
         null=True,
         validators=[validate_image_extension, validate_image_size]
     )
-    thumbnail_url = models.URLField(
-        blank=True,
-        validators=[
-            RegexValidator(
-                regex=r'\.(jpg|jpeg|png|gif)$',
-                message="URL must point to a valid image (JPG, JPEG, PNG, or GIF)."
-            )
-        ]
-    )
+    # thumbnail_url = models.URLField(
+    #     blank=True,
+    #     validators=[
+    #         RegexValidator(
+    #             regex=r'\.(jpg|jpeg|png|gif)$',
+    #             message="URL must point to a valid image (JPG, JPEG, PNG, or GIF)."
+    #         )
+    #     ]
+    # )
     snippet = models.CharField(max_length=255)
     body = body = models.TextField(
         validators=[MinLengthValidator(50, "Post body must be at least 50 characters long.")],
@@ -122,6 +127,14 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         """Sanitize body content before saving."""
+        if not self.slug:
+            while True:
+                base_slug = slugify(self.title)
+                suffix = random_suffix()
+                new_slug = f"{base_slug}-{suffix}"
+                if not Post.objects.filter(slug=new_slug).exists():
+                    self.slug = new_slug
+                    break
         if self.body:
             self.body = bleach.clean(self.body, tags=['p', 'b', 'i', 'a'], attributes={'a': ['href']})
         super().save(*args, **kwargs)
