@@ -17,20 +17,28 @@ class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     replies = serializers.SerializerMethodField()
     post = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all())
+    is_owner = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'author', 'parent', 'content', 'created_at', 'updated_at', 'is_approved', 'is_deleted', 'replies']
+        fields = ['id', 'post', 'author', 'parent', 'content', 'created_at', 'updated_at', 'is_approved', 'is_deleted', 'replies', 'is_owner']
         read_only_fields = ['author', 'created_at', 'updated_at', 'is_approved']
-        extra_kwargs = {
-            'parent': {'required': False}  # Make parent field optional during serialization
-        }
 
     def get_replies(self, obj):
-        """Recursively serialize replies."""
-        if obj.replies.exists():
-            return CommentSerializer(obj.replies.filter(is_approved=True, is_deleted=False), many=True).data
-        return []
+        request = self.context.get('request')
+        depth = int(request.query_params.get('depth', 1)) if request else 1
+
+        if depth <= 0:
+            return []
+
+        replies = obj.replies.filter(is_approved=True, is_deleted=False)
+        serializer = CommentSerializer(
+            replies,
+            many=True,
+            context={**self.context, 'depth': depth - 1}
+        )
+        return serializer.data
+
 
     def validate(self, data):
         """Ensure parent comment belongs to the same post."""
@@ -38,11 +46,17 @@ class CommentSerializer(serializers.ModelSerializer):
             if data['parent'].post != data['post']:
                 raise serializers.ValidationError("Parent comment must belong to the same post.")
         return data
+    
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        return request and request.user == obj.author
+    
 
-    def create(self, validated_data):
-        """Set the author to the authenticated user."""
-        validated_data['author'] = self.context['request'].user
-        return super().create(validated_data)
+
+    # def create(self, validated_data):
+    #     """Set the author to the authenticated user."""
+    #     validated_data['author'] = self.context['request'].user
+    #     return super().create(validated_data)
 
 class PostSerializer(serializers.ModelSerializer):
     """Serializer for Post model with comments."""
