@@ -7,8 +7,15 @@
   --color-back-1: #E8F3F3;
   --color-back-2: #F2F8F7;
 
+  --color-back-3: #DFF1F0;
+
   --color-text-1: #00AAA1;
   --color-text-2: #666666;
+
+  --color-text-3: #555555;
+  --color-text-4: #222222;
+
+  --color-text-5: #777777;
 }
 
 body{

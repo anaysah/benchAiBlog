@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ButtonWithDropDown } from '../ui/ButtonWithDropDown';
 import { UserRound } from 'lucide-react';
+import { Logo } from '../ui/logo';
 // import { useContext } from 'react';
 // import { AuthContext } from '../../context/AuthContext';
 
@@ -35,10 +36,7 @@ const RightHeader = () => {
 const MidHeader = () => {
   return(
     <>
-      <Link to="/" className="text-2xl font-bold">
-        <span className='bg-text-1 text-white px-1 me-1'>Note</span>
-        <span className='text-[15px] font-light'>Book</span>
-      </Link>
+      <Logo/>
     </>
   )
 }
