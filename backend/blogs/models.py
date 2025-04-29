@@ -57,8 +57,22 @@ class Category(models.Model):
             self.slug = slugify(self.name)
         if self.icon_svg:
             # Sanitize SVG to remove harmful elements
-            allowed_tags = ['svg', 'path', 'g', 'circle', 'rect', 'line', 'polyline', 'polygon']
-            allowed_attrs = {'svg': ['viewBox', 'width', 'height', 'xmlns'], '*': ['fill', 'stroke', 'd']}
+            allowed_tags = [
+                'svg', 'path', 'g', 'circle', 'rect', 'line', 'polyline', 'polygon',
+                'ellipse', 'text', 'clipPath', 'defs', 'use'
+            ]
+            allowed_attrs = {
+                'svg': [
+                    'viewBox', 'width', 'height', 'xmlns', 'fill', 'stroke', 'stroke-width',
+                    'stroke-linecap', 'stroke-linejoin', 'class', 'transform', 'opacity', 'style'
+                ],
+                'circle': ['cx', 'cy', 'r', 'fill', 'stroke', 'stroke-width', 'transform', 'opacity'],
+                'use': ['xlink:href', 'x', 'y', 'transform'],
+                '*': [
+                    'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd',
+                    'class', 'transform', 'x', 'y', 'rx', 'ry', 'points', 'opacity', 'id', 'style'
+                ]
+            }
             self.icon_svg = bleach.clean(
                 self.icon_svg,
                 tags=allowed_tags,
