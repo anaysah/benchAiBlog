@@ -9,7 +9,7 @@ export const ButtonWithDropDown = ({ text, menuItems }) => {
     <div className="relative inline-block text-left">
       <button
         onClick={() => setOpen(!open)}
-        className="inline-flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+        className="inline-flex justify-center items-center"
       >
         {text}
         <ChevronDown className="ml-2 w-4 h-4" />
