@@ -1,22 +1,45 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ButtonWithDropDown } from '../ui/ButtonWithDropDown';
-import { UserRound } from 'lucide-react';
 import { Logo } from '../ui/logo';
+import DropdownComponent from '../common/DropdownComponent';
+import { ChevronDown, UserRound } from 'lucide-react';
 // import { useContext } from 'react';
 // import { AuthContext } from '../../context/AuthContext';
+
+const CategoryDropdownButton = ({ onClick }) => {
+  return (
+    <button onClick={onClick} className='inline-flex justify-center items-center gap-1'>
+      Categories
+      <ChevronDown className="w-4 h-4" />      
+    </button>
+  );
+};
+
+const CategoryDropdownMenu = () => {
+  return (
+    <div className='w-48'>
+      <span className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>Profile</span>
+      <span className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>Settings</span>
+      <span className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>Logout</span>
+    </div>
+  );
+};
 
 const LeftHeader = () => {
   return (
     // <div className=''>
     <>
-      <ButtonWithDropDown
+      {/* <ButtonWithDropDown
         text="Categories"
         menuItems={[
           { label: 'Profile', href: '/profile' },
           { label: 'Settings', href: '/settings' },
           { label: 'Logout', href: '/logout' },
         ]}
+      /> */}
+      <DropdownComponent
+        MainComponent={CategoryDropdownButton} 
+        DropdownContent={CategoryDropdownMenu} 
+        position='left-0'
       />
       <div>About</div>
       <div>Contact</div>
@@ -25,10 +48,34 @@ const LeftHeader = () => {
   )
 }
 
+const UserIconButton = ({ onClick }) => {
+  return (
+    <button onClick={onClick} className='inline-flex justify-center items-center gap-1'>
+      <UserRound />
+      <ChevronDown className="w-4 h-4" />      
+    </button>
+  );
+};
+
+const UserIconDropdownMenu = () => {
+  return (
+    <div className='w-48'>
+      <span className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>Profile</span>
+      <span className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>Settings</span>
+      <span className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>Logout</span>
+    </div>
+  );
+};
+
 const RightHeader = () => {
   return (
     <>
-      <UserRound />
+      {/* <UserButtonDropdown/> */}
+      <DropdownComponent
+        MainComponent={UserIconButton} 
+        DropdownContent={UserIconDropdownMenu}
+        position='right-0'
+      />
     </>
   )
 }
