@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BlogPostCard } from '../components/ui/BlogPostCard';
 import { TopAuthers } from '../components/ui/TopAuthers';
+import { SideBarAdCard } from '../components/ui/SideBarAdCard';
+import SideBarCategoriesCount from '../components/ui/SideBarCategoriesCount';
+import TodaysCounts from '../components/ui/TodaysCounts';
+import { SearchByTags } from '../components/ui/SearchByTags';
 
 function Home() {
   const [blogs, setBlogs] = useState([]);
@@ -29,8 +33,12 @@ function Home() {
           <div className="text-gray-500">No blog posts found.</div>
         )}
       </div>
-      <div className="basis-[30%] p-5">
+      <div className="basis-[30%] p-5 gap-5 flex flex-col">
         <TopAuthers/>
+        <SideBarAdCard/>
+        <SideBarCategoriesCount/>
+        <TodaysCounts/>
+        <SearchByTags/>
       </div>
     </div>
   );
