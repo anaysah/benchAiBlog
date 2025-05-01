@@ -13,10 +13,14 @@ from .views import ForgetPasswordView
 from .views import VerifyOTPView
 from .views import ResetPasswordView
 
+from .views import CurrentUserView
+
 
 urlpatterns = [
+    path('me/', CurrentUserView.as_view(), name='current-user'),
+
     path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),   # login
-    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # refresh
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # refresh
     path('auth/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),  
     path('auth/register/', RegisterView.as_view(), name='register'),
     path('verify-email/', VerifyEmailView.as_view(), name='verify_email'),

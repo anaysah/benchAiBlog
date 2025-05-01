@@ -1,3 +1,8 @@
 # VS Code
 .vscode/
 /temp/
+
+.env
+.env-development
+.env-test
+.env-production

@@ -53,6 +53,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",  # Some setups use 127.0.0.1
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
 # Set the custom user model
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -67,8 +69,9 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=config('ACCESS_TOKEN_LIFETIME', cast=int)),
+    # "ACCESS_TOKEN_LIFETIME": timedelta(seconds=10), #for just testing
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=config('REFRESH_TOKEN_LIFETIME', cast=int)),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
